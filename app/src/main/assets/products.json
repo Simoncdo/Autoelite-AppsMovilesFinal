@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "name": "Lamborghini Veneno",
+    "price": 4500000,
+    "description": "Una obra maestra de la ingeniería aerodinámica. Con un motor V12 y construcción de fibra de carbono, el Veneno es la máxima expresión de un superdeportivo de carreras para la calle.",
+    "imageUrl": "https://www.secret-classics.com/wp-content/uploads/2021/11/LamborghiniVeneno_2.jpg",
+    "category": "Superdeportivo"
+  },
+  {
+    "id": "2",
+    "name": "Tesla Model Y",
+    "price": 65000,
+    "description": "El futuro de la conducción eléctrica. El Model Y combina versatilidad, seguridad y un rendimiento impresionante, con aceleración instantánea y acceso a la red de Superchargers.",
+    "imageUrl": "https://us.as.com/autos/wp-content/uploads/2024/01/ModelY_76-1264x734.jpg",
+    "category": "Eléctrico"
+  },
+  {
+    "id": "3",
+    "name": "Camaro SS",
+    "price": 75000,
+    "description": "Pura potencia americana. El Camaro SS viene equipado con un legendario motor V8 que entrega un torque y un sonido inconfundibles. Un ícono de músculo y rendimiento moderno.",
+    "imageUrl": "https://hips.hearstapps.com/hmg-prod/images/chevrolet-camaro-ss-collector-s-edition-647f286a0e22d.jpg?crop=1xw:1xh;0,0.0738xh",
+    "category": "Muscle Car"
+  },
+  {
+    "id": "4",
+    "name": "Camión Ford",
+    "price": 85000,
+    "description": "Construido para el trabajo duro. Este camión Ford combina una capacidad de carga y remolque líderes en su clase con tecnología robusta y un motor potente, listo para cualquier desafío.",
+    "imageUrl": "https://media.ford.com/content/fordmedia/fsa/ar/es/asset.download.image.original.html/content/dam/fordmedia/South%20America/Argentina/2018/FORD%20CAMIONES%20PRESENTA%20NUEVOS%20MODELOS%20CON%20MOTORES%20M%C3%81S%20POTENTES.jpg",
+    "category": "Trabajo"
+  },
+  {
+    "id": "5",
+    "name": "Mitsubishi Eclipse",
+    "price": 35000,
+    "description": "El regreso de una leyenda del tuning. Famoso por su agilidad y su motor turboalimentado, el Eclipse es el lienzo perfecto para la personalización y la conducción deportiva.",
+    "imageUrl": "https://chileautos.pxcrush.net/cars/dealer/4w3ut946w7ulg5atg59oo50qu.jpg?pxc_method=fitfill&pxc_bgtype=self&height=725&width=1087",
+    "category": "Deportivo"
+  },
+  {
+    "id": "6",
+    "name": "Dodge Challenger",
+    "price": 80000,
+    "description": "El muscle car definitivo. El Challenger irradia una presencia imponente con su diseño retro y la potencia descomunal de su motor HEMI. Una experiencia de conducción visceral.",
+    "imageUrl": "https://static.wikia.nocookie.net/atodogas/images/c/c7/C48025b7eb1bbd796fe998268f9da8f6.jpg/revision/latest?cb=20220704185617&path-prefix=es",
+    "category": "Muscle Car"
+  }
+]
