@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,6 +24,7 @@ import com.example.autoelite.data.model.Auto
 import com.example.autoelite.viewmodel.AuthViewModel
 import com.example.autoelite.viewmodel.CarritoViewModel
 import com.example.autoelite.viewmodel.ProductoViewModel
+import com.example.autoelite.viewmodel.UiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,38 +59,53 @@ fun CatalogoPantalla(
             }
         }
     ) { paddingValues ->
-        val productos by productoViewModel.productos.collectAsState()
+        val productosState by productoViewModel.productosState.collectAsState()
 
-        LazyColumn(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
-            items(productos) { auto ->
-                Card(
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .clickable { 
-                            auto.id?.let { navController.navigate("detalle_producto/$it") } 
-                        },
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Column {
-                        Image(
-                            painter = rememberAsyncImagePainter(auto.imagenes?.firstOrNull()),
-                            contentDescription = "${auto.marca ?: ""} ${auto.modelo ?: ""}",
-                            modifier = Modifier.height(200.dp).fillMaxWidth(),
-                            contentScale = ContentScale.Crop
-                        )
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "${auto.marca ?: ""} ${auto.modelo ?: ""}", style = MaterialTheme.typography.titleLarge)
-                            
-                            val precioFormatted = String.format("%,d", auto.precio ?: 0L)
-                            Text(text = "$$precioFormatted", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Button(onClick = { carritoViewModel.agregarAlCarrito(auto) }) {
-                                Text("Agregar al Carrito")
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            when (val state = productosState) {
+                is UiState.Loading -> CircularProgressIndicator()
+                is UiState.Success -> {
+                    if (state.data.isEmpty()) {
+                        Text("No hay autos disponibles en este momento.")
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                            items(state.data) { auto ->
+                                Card(
+                                    modifier = Modifier
+                                        .padding(bottom = 16.dp)
+                                        .clickable { 
+                                            auto.id?.let { navController.navigate("detalle_producto/$it") } 
+                                        },
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                                ) {
+                                    Column {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(auto.imagenes?.firstOrNull()),
+                                            contentDescription = "${auto.marca ?: ""} ${auto.modelo ?: ""}",
+                                            modifier = Modifier.height(200.dp).fillMaxWidth(),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(text = "${auto.marca ?: ""} ${auto.modelo ?: ""}", style = MaterialTheme.typography.titleLarge)
+                                            
+                                            val precioFormatted = String.format("%,d", auto.precio ?: 0L)
+                                            Text(text = "$$precioFormatted", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                                            
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Button(onClick = { carritoViewModel.agregarAlCarrito(auto) }) {
+                                                Text("Agregar al Carrito")
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                is UiState.Error -> Text(text = state.message)
             }
         }
     }

@@ -10,26 +10,32 @@ import kotlinx.coroutines.launch
 
 class ProductoViewModel : ViewModel() {
 
-    private val _productos = MutableStateFlow<List<Auto>>(emptyList())
-    val productos: StateFlow<List<Auto>> = _productos
+    // Cambiamos el StateFlow para que exponga un UiState
+    private val _productosState = MutableStateFlow<UiState<List<Auto>>>(UiState.Loading)
+    val productosState: StateFlow<UiState<List<Auto>>> = _productosState
 
     init {
         cargarAutos()
     }
 
     fun cargarAutos() {
+        _productosState.value = UiState.Loading
         viewModelScope.launch {
             try {
                 val autosList = RetrofitClient.webService.getAutos()
-                _productos.value = autosList
+                _productosState.value = UiState.Success(autosList)
             } catch (e: Exception) {
-                println("Error al cargar autos: ${e.message}")
-                _productos.value = emptyList()
+                _productosState.value = UiState.Error("Error al cargar el catálogo: ${e.message}")
             }
         }
     }
 
+    // Esta función ahora debe buscar en el estado de éxito
     fun buscarPorId(id: Long): Auto? {
-        return _productos.value.find { it.id == id }
+        return if (_productosState.value is UiState.Success) {
+            (_productosState.value as UiState.Success<List<Auto>>).data.find { it.id == id }
+        } else {
+            null
+        }
     }
 }
