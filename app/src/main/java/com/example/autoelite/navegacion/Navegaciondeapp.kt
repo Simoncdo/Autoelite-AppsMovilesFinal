@@ -47,7 +47,7 @@ fun AppNavigation() {
         composable("back_office") { 
             BackOfficePantalla(navController, authViewModel, adminViewModel)
         }
-        composable("admin/autos") { // Renombrado a "autos"
+        composable("admin/autos") {
             AutoListScreen(navController, adminViewModel)
         }
         composable("admin/users") {
