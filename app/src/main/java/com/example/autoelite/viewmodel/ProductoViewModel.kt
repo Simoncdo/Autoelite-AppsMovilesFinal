@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 
 class ProductoViewModel : ViewModel() {
 
-    // Cambiamos el StateFlow para que exponga un UiState
     private val _productosState = MutableStateFlow<UiState<List<Auto>>>(UiState.Loading)
     val productosState: StateFlow<UiState<List<Auto>>> = _productosState
 
@@ -30,7 +29,6 @@ class ProductoViewModel : ViewModel() {
         }
     }
 
-    // Esta función ahora debe buscar en el estado de éxito
     fun buscarPorId(id: Long): Auto? {
         return if (_productosState.value is UiState.Success) {
             (_productosState.value as UiState.Success<List<Auto>>).data.find { it.id == id }

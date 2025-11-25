@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,6 +36,9 @@ fun CatalogoPantalla(
     carritoViewModel: CarritoViewModel
 ) {
     val usuario by authViewModel.usuarioActual
+    LaunchedEffect(Unit) {
+        productoViewModel.cargarAutos()
+    }
 
     Scaffold(
         topBar = {
