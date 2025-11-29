@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.example.autoelite.data.model.Auto // Usamos el modelo correcto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-// Volvemos al nombre original, pero usando el modelo Auto
 data class CarritoItem(val auto: Auto, var cantidad: Int)
 
 class CarritoViewModel : ViewModel() {
@@ -37,10 +35,12 @@ class CarritoViewModel : ViewModel() {
     fun actualizarCantidad(item: CarritoItem, cantidad: Int) {
         val itemsActuales = _items.value.toMutableList()
         val itemEncontrado = itemsActuales.find { it.auto.id == item.auto.id }
-        if (itemEncontrado != null && cantidad > 0) {
-            itemEncontrado.cantidad = cantidad
-        } else if (cantidad <= 0) {
-            removerDelCarrito(item)
+        if (itemEncontrado != null) {
+            if (cantidad > 0) {
+                itemEncontrado.cantidad = cantidad
+            } else {
+                itemsActuales.remove(itemEncontrado)
+            }
         }
         _items.value = itemsActuales
     }
