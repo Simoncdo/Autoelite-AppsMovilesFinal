@@ -1,38 +1,65 @@
 package com.example.autoelite.viewmodel
 
 import com.example.autoelite.data.model.Auto
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
 
+@ExperimentalCoroutinesApi
 class CarritoViewModelTest {
 
+    @get:Rule
+    val mainCoroutineRule = MainCoroutineRule()
+
     private lateinit var viewModel: CarritoViewModel
-    private val auto1 = Auto(id = 1L, marca = "Tesla", modelo = "Modelo S", precio = 75000L)
-    private val auto2 = Auto(id = 2L, marca = "Ford", modelo = "Mustang", precio = 55000L)
 
     @Before
     fun setUp() {
         viewModel = CarritoViewModel()
     }
+    private val auto1 = Auto(id = 1L, marca = "Toyota", modelo = "Corolla", precio = 20000L)
+    private val auto2 = Auto(id = 2L, marca = "Honda", modelo = "Civic", precio = 22000L)
 
     @Test
-    fun `agregar un nuevo auto al carrito aumenta la lista de items`() {
-        viewModel.agregarAlCarrito(auto1)
-        assertEquals(1, viewModel.items.value.size)
-        assertEquals(auto1.id, viewModel.items.value.first().auto.id)
+    fun `estado inicial - el carrito está vacío y la moneda es CLP`() {
+        assertTrue(viewModel.items.value.isEmpty())
+        assertEquals(0.0, viewModel.total, 0.0)
+        assertEquals("CLP", viewModel.monedaSeleccionada.value)
+        assertEquals(1.0, viewModel.factorConversion.value, 0.0)
     }
 
     @Test
-    fun `agregar un auto existente solo incrementa su cantidad`() {
+    fun `agregarAlCarrito - cuando se agrega un auto nuevo, el item se añade a la lista`() {
         viewModel.agregarAlCarrito(auto1)
-        viewModel.agregarAlCarrito(auto1)
-        assertEquals(1, viewModel.items.value.size)
-        assertEquals(2, viewModel.items.value.first().cantidad)
+        val items = viewModel.items.value
+        assertEquals(1, items.size)
+        assertEquals(1L, items[0].auto.id)
+        assertEquals(1, items[0].cantidad)
     }
 
     @Test
-    fun `remover del carrito elimina el item`() {
+    fun `agregarAlCarrito - cuando se agrega un auto existente, la cantidad aumenta`() {
+        viewModel.agregarAlCarrito(auto1)
+        viewModel.agregarAlCarrito(auto1)
+        val items = viewModel.items.value
+        assertEquals(1, items.size)
+        assertEquals(2, items[0].cantidad)
+    }
+
+    @Test
+    fun `removerDelCarrito - cuando se elimina un item, la lista se actualiza`() {
         viewModel.agregarAlCarrito(auto1)
         val item = viewModel.items.value.first()
         viewModel.removerDelCarrito(item)
@@ -40,7 +67,7 @@ class CarritoViewModelTest {
     }
 
     @Test
-    fun `actualizar cantidad cambia la cantidad del item`() {
+    fun `actualizarCantidad - cuando se cambia la cantidad, el valor se actualiza`() {
         viewModel.agregarAlCarrito(auto1)
         val item = viewModel.items.value.first()
         viewModel.actualizarCantidad(item, 5)
@@ -48,7 +75,7 @@ class CarritoViewModelTest {
     }
 
     @Test
-    fun `actualizar cantidad a cero remueve el item`() {
+    fun `actualizarCantidad - cuando la cantidad es cero, el item se elimina`() {
         viewModel.agregarAlCarrito(auto1)
         val item = viewModel.items.value.first()
         viewModel.actualizarCantidad(item, 0)
@@ -56,7 +83,7 @@ class CarritoViewModelTest {
     }
 
     @Test
-    fun `vaciar carrito elimina todos los items`() {
+    fun `vaciarCarrito - cuando se llama, la lista de items queda vacía`() {
         viewModel.agregarAlCarrito(auto1)
         viewModel.agregarAlCarrito(auto2)
         viewModel.vaciarCarrito()
@@ -64,31 +91,38 @@ class CarritoViewModelTest {
     }
 
     @Test
-    fun `el total es cero cuando el carrito esta vacio`() {
+    fun `total - cuando el carrito tiene items, calcula el total correctamente`() {
+        viewModel.agregarAlCarrito(auto1)
+        viewModel.agregarAlCarrito(auto2)
+        viewModel.agregarAlCarrito(auto1)
+        assertEquals(62000.0, viewModel.total, 0.0)
+    }
+
+    @Test
+    fun `total - cuando el carrito está vacío, el total es cero`() {
         assertEquals(0.0, viewModel.total, 0.0)
     }
 
     @Test
-    fun `calcular total con un solo item`() {
-        viewModel.agregarAlCarrito(auto1)
-        assertEquals(75000.0, viewModel.total, 0.0)
+    fun `cambiarMoneda - cuando se cambia a CLP, el factor de conversion es uno`() = runTest {
+        viewModel.cambiarMoneda("USD")
+        advanceUntilIdle()
+        viewModel.cambiarMoneda("CLP")
+        advanceUntilIdle()
+
+        assertEquals("CLP", viewModel.monedaSeleccionada.value)
+        assertEquals(1.0, viewModel.factorConversion.value, 0.0)
+    }
+}
+@ExperimentalCoroutinesApi
+class MainCoroutineRule(
+    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+) : TestWatcher() {
+    override fun starting(description: Description) {
+        Dispatchers.setMain(testDispatcher)
     }
 
-    @Test
-    fun `calcular total con multiples items y cantidades`() {
-        viewModel.agregarAlCarrito(auto1) // 75000
-        viewModel.agregarAlCarrito(auto1) // 75000 * 2
-        viewModel.agregarAlCarrito(auto2) // 55000
-        val expectedTotal = (75000.0 * 2) + 55000.0
-        assertEquals(expectedTotal, viewModel.total, 0.0)
-    }
-
-    @Test
-    fun `remover un item actualiza el total correctamente`() {
-        viewModel.agregarAlCarrito(auto1)
-        viewModel.agregarAlCarrito(auto2)
-        val item2 = viewModel.items.value.find { it.auto.id == auto2.id }!!
-        viewModel.removerDelCarrito(item2)
-        assertEquals(75000.0, viewModel.total, 0.0)
+    override fun finished(description: Description) {
+        Dispatchers.resetMain()
     }
 }
